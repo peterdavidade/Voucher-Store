@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Voucher Store</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">Voucher Store</div>
+    <nav id="mainNav">
+      <!-- Navigation will be rendered by JavaScript -->
+    </nav>
+  </header>
+
+  <main class="page-content admin-page">
+    <section class="admin-panel">
+      <h2>Admin Login</h2>
+      <p class="hint">Enter admin credentials to access the admin panel.</p>
+
+      <div class="admin-login-card" id="adminLoginCard">
+        <form id="adminLoginForm" class="auth-form">
+          <label for="adminUsername">Username</label>
+          <input type="text" id="adminUsername" placeholder="admin" required />
+
+          <label for="adminPassword">Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="adminPassword" placeholder="Enter admin password" required />
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('adminPassword')" aria-label="Toggle password visibility">👁️</button>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Login as Admin</button>
+          <p id="adminLoginMessage" class="auth-message"></p>
+        </form>
+      </div>
+
+      <div class="admin-content" id="adminContent" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h2>Admin Panel</h2>
+          <button onclick="adminLogout()" class="btn btn-secondary">Logout Admin</button>
+        </div>
+        <p class="hint">This is a simple frontend-only admin simulation. Add products and view orders stored in localStorage.</p>
+
+        <div class="admin-grid">
+        <div class="admin-card">
+            <h3>Add New Product</h3>
+            <form id="adminProductForm">
+              <label for="adminTitle">Product Name</label>
+              <input type="text" id="adminTitle" required />
+
+              <label for="adminShortDesc">Short Description</label>
+              <input type="text" id="adminShortDesc" required />
+
+              <label for="adminDescription">Full Description</label>
+              <textarea id="adminDescription" rows="4" required></textarea>
+
+              <label for="adminPrice">Price (GHS)</label>
+              <input type="number" id="adminPrice" min="1" required />
+
+              <label for="adminImage">Product Image</label>
+              <div class="file-input-wrapper">
+                <label for="adminImage" class="file-input-label">
+                  📸 Click to upload or drag image here
+                </label>
+                <input type="file" id="adminImage" accept="image/*" />
+              </div>
+              <img id="imagePreview" class="image-preview" style="display: none;" />
+
+              <label for="adminImageUrl">Or paste Image URL</label>
+              <input type="url" id="adminImageUrl" placeholder="https://example.com/image.jpg" />
+              <button type="button" id="loadImageBtn" class="btn btn-secondary" onclick="loadImageFromURL()">Load from URL</button>
+              <p id="imageLoadMessage" class="hint"></p>
+
+              <button type="submit" id="adminProductSubmitBtn" class="btn btn-primary">Add Product</button>
+              <button type="button" id="adminCancelEditBtn" class="btn btn-secondary" style="display: none; margin-left: 0.5rem;">Cancel Edit</button>
+              <p id="adminProductMessage" class="success-message"></p>
+            </form>
+          </div>
+
+          <div class="admin-card">
+            <h3>Product Catalog</h3>
+            <div id="adminProductList" class="product-list">
+              <!-- Product list injected by JavaScript -->
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <h3>Stored Orders</h3>
+            <div id="adminOrderList" class="order-list">
+              <!-- Orders injected by JavaScript -->
+            </div>
+            <button type="button" class="btn btn-secondary" onclick="clearAllProducts()" style="margin-top: 1rem; width: 100%;">🗑️ Clear All Products</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Contact Us</h4>
+        <p><strong>Email:</strong> <a href="mailto:info.karyocodes@gmail.com">info.karyocodes@gmail.com</a></p>
+        <p><strong>Mobile:</strong> <a href="tel:+233209816129">0209 816 129</a></p>
+        <p><strong>WhatsApp:</strong> <a href="https://chat.whatsapp.com/HLF6lGg4HMNBVI0K70gQM3" target="_blank">Join Our Community</a></p>
+      </div>
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <p><a href="index.html">Home</a></p>
+        <p><a href="admin.html">Admin Panel</a></p>
+        <p><a href="checkout.html">Checkout</a></p>
+      </div>
+      <div class="footer-section">
+        <h4>About</h4>
+        <p>Your trusted platform for results verification and university application vouchers. Secure, fast, and reliable service.</p>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <p>© Copyright 2026, all rights reserved. | Powered by D Tech</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

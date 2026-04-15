@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Voucher Store</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">Voucher Store</div>
+    <nav id="mainNav">
+      <!-- Navigation will be rendered by JavaScript -->
+    </nav>
+  </header>
+
+  <main class="page-content">
+    <section class="login-section">
+      <div class="login-card">
+        <h2>Login to Your Account</h2>
+        <p class="login-subtitle">Access your voucher store account</p>
+
+        <div class="auth-tabs">
+          <button id="loginTab" class="auth-tab active" onclick="switchTab('login')">Login</button>
+          <button id="registerTab" class="auth-tab" onclick="switchTab('register')">Register</button>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+          <label for="loginIdentifier">Email or Phone</label>
+          <input type="text" id="loginIdentifier" placeholder="your@email.com or 0244 123 456" required />
+
+          <label for="loginPassword">Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="loginPassword" placeholder="Enter your password" required />
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('loginPassword')" aria-label="Toggle password visibility">👁️</button>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Login</button>
+          <div class="form-footer-row">
+            <a href="#" id="forgotLink" class="auth-link">Forgot Password?</a>
+          </div>
+          <p id="loginMessage" class="auth-message"></p>
+        </form>
+
+        <form id="registerForm" class="auth-form" style="display: none;">
+          <label for="registerName">Full Name</label>
+          <input type="text" id="registerName" placeholder="Your full name" required />
+
+          <label for="registerEmail">Email (optional)</label>
+          <input type="email" id="registerEmail" placeholder="your@email.com" />
+
+          <label for="registerPhone">Phone (optional)</label>
+          <input type="tel" id="registerPhone" placeholder="0244 123 456" />
+
+          <label for="registerPassword">Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="registerPassword" placeholder="Create a password" required />
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('registerPassword')" aria-label="Toggle password visibility">👁️</button>
+          </div>
+
+          <label for="registerConfirmPassword">Confirm Password</label>
+          <div class="password-wrapper">
+            <input type="password" id="registerConfirmPassword" placeholder="Confirm your password" required />
+            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('registerConfirmPassword')" aria-label="Toggle password visibility">👁️</button>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Create Account</button>
+          <p id="registerMessage" class="auth-message"></p>
+        </form>
+
+        <form id="forgotForm" class="auth-form" style="display: none;">
+          <label for="forgotIdentifier">Email or Phone</label>
+          <input type="text" id="forgotIdentifier" placeholder="Enter your email or phone" required />
+
+          <div class="form-actions-row">
+            <button type="submit" class="btn btn-primary">Send Reset Code</button>
+            <button type="button" class="btn btn-secondary" id="forgotCancelBtn">Back to Login</button>
+          </div>
+          <p id="forgotMessage" class="auth-message"></p>
+        </form>
+
+        <div id="verifySection" class="auth-step" style="display: none;">
+          <h3 id="verifyTitle">Verify Your Account</h3>
+          <p id="verificationPrompt" class="hint"></p>
+
+          <label for="verifyCode">Verification Code</label>
+          <input type="text" id="verifyCode" placeholder="Enter the 6-digit code" />
+
+          <div id="resetPasswordFields" style="display: none;">
+            <label for="resetPassword">New Password</label>
+            <div class="password-wrapper">
+              <input type="password" id="resetPassword" placeholder="Create a new password" />
+              <button type="button" class="password-toggle" onclick="togglePasswordVisibility('resetPassword')" aria-label="Toggle password visibility">👁️</button>
+            </div>
+            <label for="resetConfirmPassword">Confirm New Password</label>
+            <div class="password-wrapper">
+              <input type="password" id="resetConfirmPassword" placeholder="Confirm your new password" />
+              <button type="button" class="password-toggle" onclick="togglePasswordVisibility('resetConfirmPassword')" aria-label="Toggle password visibility">👁️</button>
+            </div>
+          </div>
+
+          <div class="form-actions-row">
+            <button type="button" id="verifySubmitBtn" class="btn btn-primary">Verify Code</button>
+            <button type="button" id="verifyCancelBtn" class="btn btn-secondary">Cancel</button>
+          </div>
+          <p id="verifyMessage" class="auth-message"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>Contact Us</h4>
+        <p><strong>Email:</strong> <a href="mailto:info.karyocodes@gmail.com">info.karyocodes@gmail.com</a></p>
+        <p><strong>Mobile:</strong> <a href="tel:+233209816129">0209 816 129</a></p>
+        <p><strong>WhatsApp:</strong> <a href="https://chat.whatsapp.com/HLF6lGg4HMNBVI0K70gQM3" target="_blank">Join Our Community</a></p>
+      </div>
+      <div class="footer-section">
+        <h4>Quick Links</h4>
+        <p><a href="index.html">Home</a></p>
+        <p><a href="checkout.html">Checkout</a></p>
+      </div>
+      <div class="footer-section">
+        <h4>About</h4>
+        <p>Your trusted platform for results verification and university application vouchers. Secure, fast, and reliable service.</p>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <p>© Copyright 2026, all rights reserved. | Powered by Voucher Store</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
