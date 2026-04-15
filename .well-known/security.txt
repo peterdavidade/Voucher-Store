@@ -1,0 +1,4 @@
+Contact: mailto:info.karyocodes@gmail.com
+Preferred-Languages: en
+Canonical: https://voucher-store-3c12.vercel.app/.well-known/security.txt
+

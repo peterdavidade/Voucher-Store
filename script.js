@@ -1,11 +1,36 @@
 // script.js
 // This script handles product rendering, checkout state, and admin simulation.
 
-// USSD Phone Dial Handler
-function dialUSSD(code) {
-  // For web, we use tel: protocol which works on mobile devices
-  // On desktop, it will prompt to choose a dialer app if available
-  window.location.href = 'tel:' + code;
+function isHttpsUrl(value) {
+  if (!value) return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function escapeHTML(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function jsStringLiteral(value) {
+  return JSON.stringify(String(value ?? ''));
+}
+
+function safeImageSrc(value) {
+  const src = String(value ?? '').trim();
+  if (!src) return '';
+  if (src.startsWith('data:image/')) return src;
+  if (src.startsWith('/') || src.startsWith('./')) return src;
+  if (src.startsWith('https://')) return src;
+  return '';
 }
 
 // Image URL to Base64 Converter
@@ -21,6 +46,12 @@ function loadImageFromURL() {
     return;
   }
 
+  if (!isHttpsUrl(url)) {
+    message.textContent = 'Please use a secure https:// image URL.';
+    message.style.color = '#ef4444';
+    return;
+  }
+
   message.textContent = 'Loading image...';
   message.style.color = '#a0aec0';
 
@@ -28,9 +59,17 @@ function loadImageFromURL() {
   fetch(url)
     .then((response) => {
       if (!response.ok) throw new Error('Failed to fetch image');
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.startsWith('image/')) {
+        throw new Error('That link does not look like an image.');
+      }
       return response.blob();
     })
     .then((blob) => {
+      const maxBytes = 1500000;
+      if (blob.size > maxBytes) {
+        throw new Error('Image is too large. Please upload a smaller image file.');
+      }
       const reader = new FileReader();
       reader.onload = (e) => {
         imagePreview.src = e.target.result;
@@ -41,20 +80,9 @@ function loadImageFromURL() {
       reader.readAsDataURL(blob);
     })
     .catch((error) => {
-      console.warn('Image fetch failed, falling back to direct URL load:', error);
-      const tempImage = new Image();
-      tempImage.onload = () => {
-        imagePreview.src = url;
-        imagePreview.style.display = 'block';
-        message.textContent = 'Image loaded from URL. It will be used directly if base64 could not be created.';
-        message.style.color = '#f59e0b';
-      };
-      tempImage.onerror = () => {
-        message.textContent = `Error loading image: ${error.message}. Try uploading the file instead.`;
-        message.style.color = '#ef4444';
-        console.error('Image load fallback failed:', error);
-      };
-      tempImage.src = url;
+      console.warn('Image fetch failed:', error);
+      message.textContent = `Could not load that image URL (${error.message}). Please download the image and upload it instead.`;
+      message.style.color = '#ef4444';
     });
 }
 
@@ -155,8 +183,6 @@ function adminLogin(username, password) {
     password: 'admin123'
   };
 
-  console.log('Attempting admin login with:', username, password);
-
   if (username === adminCredentials.username && password === adminCredentials.password) {
     const admin = {
       username: username,
@@ -164,11 +190,9 @@ function adminLogin(username, password) {
       role: 'admin'
     };
     setAdminSession(admin);
-    console.log('Admin login successful, session set');
     return { success: true, message: 'Admin login successful!' };
   }
 
-  console.log('Admin login failed');
   return { success: false, message: 'Invalid admin credentials.' };
 }
 
@@ -427,13 +451,13 @@ function renderHomePage() {
     .map(
       (product) => `
       <article class="product-card">
-        ${product.image ? `<img src="${product.image}" alt="${product.title}" class="product-image">` : '<div class="product-image-placeholder">🛍️</div>'}
+        ${safeImageSrc(product.image) ? `<img src="${safeImageSrc(product.image)}" alt="${escapeHTML(product.title)}" class="product-image">` : '<div class="product-image-placeholder">🛍️</div>'}
         <div>
-          <h3>${product.title}</h3>
-          <p>${product.shortDescription}</p>
+          <h3>${escapeHTML(product.title)}</h3>
+          <p>${escapeHTML(product.shortDescription)}</p>
         </div>
         <div>
-          <button class="btn btn-primary" onclick="viewProduct('${product.id}')">Buy Now</button>
+          <button class="btn btn-primary" onclick="viewProduct(${jsStringLiteral(product.id)})">Buy Now</button>
         </div>
       </article>
     `
@@ -472,9 +496,9 @@ function renderProductPage() {
   }
 
   productDetail.innerHTML = `
-    ${product.image ? `<img src="${product.image}" alt="${product.title}" class="product-image" style="width: 100%; max-width: 400px; margin-bottom: 2rem;">` : ''}
-    <h2>${product.title}</h2>
-    <p>${product.description}</p>
+    ${safeImageSrc(product.image) ? `<img src="${safeImageSrc(product.image)}" alt="${escapeHTML(product.title)}" class="product-image" style="width: 100%; max-width: 400px; margin-bottom: 2rem;">` : ''}
+    <h2>${escapeHTML(product.title)}</h2>
+    <p>${escapeHTML(product.description)}</p>
     <div class="product-price">${formatCurrency(product.price)}</div>
 
     <div class="quantity-selector" style="margin: 2rem 0;">
@@ -536,8 +560,8 @@ function renderCheckoutPage() {
   const totalPrice = product.price * quantity;
 
   checkoutSummary.innerHTML = `
-    <strong>${product.title}</strong>
-    <span>${product.shortDescription}</span>
+    <strong>${escapeHTML(product.title)}</strong>
+    <span>${escapeHTML(product.shortDescription)}</span>
     <span>Quantity: ${quantity}</span>
     <span>Unit Price: ${formatCurrency(product.price)}</span>
     <span class="product-price">Total: ${formatCurrency(totalPrice)}</span>
@@ -639,7 +663,7 @@ function renderNavigation() {
       <a href="index.html#buy-checkers">Buy Checkers</a>
       <a href="checkout.html" class="${currentPath === 'checkout.html' ? 'active' : ''}">Buy Now!</a>
       <a href="#contact">Contact</a>
-      <span class="user-greeting">Welcome, ${currentUser.name}</span>
+      <span class="user-greeting">Welcome, ${escapeHTML(currentUser.name)}</span>
       <button onclick="logout()" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;">Logout</button>
     `;
   } else if (adminSession) {
@@ -1034,11 +1058,11 @@ function renderSuccessPage() {
 
       <div class="order-details">
         <h3>Order Details</h3>
-        <p><strong>Product:</strong> ${lastOrder.productName}</p>
+        <p><strong>Product:</strong> ${escapeHTML(lastOrder.productName)}</p>
         <p><strong>Quantity:</strong> ${lastOrder.quantity || 1}</p>
         <p><strong>Total Paid:</strong> ${formatCurrency(lastOrder.totalPrice || lastOrder.price)}</p>
-        <p><strong>Voucher Code:</strong> <span class="voucher-code">${lastOrder.voucherCode}</span></p>
-        <p><strong>Reference:</strong> ${lastOrder.paymentReference || 'N/A'}</p>
+        <p><strong>Voucher Code:</strong> <span class="voucher-code">${escapeHTML(lastOrder.voucherCode)}</span></p>
+        <p><strong>Reference:</strong> ${escapeHTML(lastOrder.paymentReference || 'N/A')}</p>
       </div>
 
       <div class="success-actions">
@@ -1049,7 +1073,7 @@ function renderSuccessPage() {
       <div class="voucher-instructions">
         <h4>How to Use Your Voucher</h4>
         <ol>
-          <li>Save this voucher code: <strong>${lastOrder.voucherCode}</strong></li>
+          <li>Save this voucher code: <strong>${escapeHTML(lastOrder.voucherCode)}</strong></li>
           <li>Visit the relevant platform (WAEC, University portal, etc.)</li>
           <li>Enter the voucher code when prompted for payment</li>
           <li>Complete your verification or application process</li>
@@ -1069,11 +1093,8 @@ function renderAdminPage() {
   const adminContent = document.getElementById('adminContent');
 
   if (!loginCard || !adminContent) {
-    console.log('Admin DOM elements not found');
     return;
   }
-
-  console.log('Admin logged in:', isAdminLoggedIn());
 
   if (isAdminLoggedIn()) {
     // Show admin content
@@ -1136,7 +1157,7 @@ function renderAdminPage() {
           message.textContent = 'Product updated successfully!';
         } else {
           products.push({
-            id: `${title.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+            id: `${title.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-${Date.now()}`,
             title,
             shortDescription,
             description,
@@ -1172,13 +1193,13 @@ function renderAdminPage() {
       .map(
         (order) => `
         <div class="order-item">
-          <p><strong>${order.customerName}</strong> (${order.customerEmail})</p>
-          <p>Product: ${order.productName}</p>
+          <p><strong>${escapeHTML(order.customerName)}</strong> (${escapeHTML(order.customerEmail)})</p>
+          <p>Product: ${escapeHTML(order.productName)}</p>
           <p>Quantity: ${order.quantity || 1}</p>
           <p>Unit Price: ${formatCurrency(order.price)}</p>
           <p>Total Paid: ${formatCurrency(order.totalPrice || order.price)}</p>
-          <p>Voucher: ${order.voucherCode || 'Pending'}</p>
-          <p class="hint">Ref: ${order.paymentReference || 'N/A'}</p>
+          <p>Voucher: ${escapeHTML(order.voucherCode || 'Pending')}</p>
+          <p class="hint">Ref: ${escapeHTML(order.paymentReference || 'N/A')}</p>
         </div>
       `
       )
@@ -1263,15 +1284,15 @@ function renderAdminProducts() {
     .map((product) => `
       <div class="admin-product-item">
         <div class="product-summary">
-          <strong>${product.title}</strong>
+          <strong>${escapeHTML(product.title)}</strong>
           <span class="product-status ${product.active ? 'active' : 'inactive'}">${product.active ? 'ACTIVE' : 'INACTIVE'}</span>
         </div>
-        <p>${product.shortDescription}</p>
+        <p>${escapeHTML(product.shortDescription)}</p>
         <p>Price: ${formatCurrency(product.price)}</p>
         <div class="admin-product-actions">
-          <button class="btn btn-secondary" onclick="toggleProductActive('${product.id}')">${product.active ? 'Deactivate' : 'Activate'}</button>
-          <button class="btn btn-secondary" onclick="editProduct('${product.id}')">Edit</button>
-          <button class="btn btn-danger" onclick="deleteProduct('${product.id}')">Delete</button>
+          <button class="btn btn-secondary" onclick="toggleProductActive(${jsStringLiteral(product.id)})">${product.active ? 'Deactivate' : 'Activate'}</button>
+          <button class="btn btn-secondary" onclick="editProduct(${jsStringLiteral(product.id)})">Edit</button>
+          <button class="btn btn-danger" onclick="deleteProduct(${jsStringLiteral(product.id)})">Delete</button>
         </div>
       </div>
     `)

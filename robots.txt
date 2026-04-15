@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://voucher-store-3c12.vercel.app/sitemap.xml
+
